@@ -1,6 +1,8 @@
 import { gql } from "apollo-server-express";
 
 const typeDefs = gql`
+  scalar DateTime
+
   type Query {
     notes: [Note!]!
     note(id: ID!): Note!
@@ -16,6 +18,8 @@ const typeDefs = gql`
     id: ID!
     content: String!
     author: String!
+    createdAt: DateTime!
+    updatedAt: DateTime!
   }
 `;
 
