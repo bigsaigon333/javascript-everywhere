@@ -1,8 +1,8 @@
-import mongoose from "mongoose";
+import { connect, connection } from "mongoose";
 
 const db = {
   connect: (DB_HOST: string) => {
-    mongoose.connect(DB_HOST).catch((err) => {
+    connect(DB_HOST).catch((err) => {
       console.error(err);
       console.log(
         "MongoDB connection error. Please make sure MongoDB is running."
@@ -11,7 +11,7 @@ const db = {
     });
   },
   close: () => {
-    mongoose.connection.close();
+    connection.close();
   },
 };
 

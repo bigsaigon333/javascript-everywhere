@@ -2,14 +2,9 @@ import express from "express";
 import { ApolloServer, gql } from "apollo-server-express";
 import dotenv from "dotenv";
 import db from "./db";
+import models from "./models";
 
 dotenv.config();
-
-const notes = [
-  { id: "1", content: "This is a note", author: "Adam Scott" },
-  { id: "2", content: "This is another note", author: "Harlow Everly" },
-  { id: "3", content: "Oh hey look, another note!", author: "Riley Harrison" },
-];
 
 const { DB_HOST, PORT = 4000 } = process.env;
 
@@ -19,7 +14,6 @@ if (DB_HOST == null) {
 
 const typeDefs = gql`
   type Query {
-    hello: String
     notes: [Note!]!
     note(id: ID!): Note!
   }
@@ -37,22 +31,15 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
-    hello: () => "Hello world!",
-    notes: () => notes,
-    note: (_: never, { id }: { id: string }) =>
-      notes.find((note) => note.id === id),
+    notes: async () => models.Note.find(),
+    note: async (_: never, { id }: { id: string }) => models.Note.findById(id),
   },
   Mutation: {
-    newNote: (_: never, { content }: { content: string }) => {
-      const newValue = {
-        id: String(notes.length + 1),
+    newNote: async (_: never, { content }: { content: string }) =>
+      models.Note.create({
         content,
         author: "bigsaigon333",
-      };
-      notes.push(newValue);
-
-      return newValue;
-    },
+      }),
   },
 };
 
