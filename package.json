@@ -29,7 +29,7 @@
     "typescript": "^4.5.4"
   },
   "lint-staged": {
-    "*.js": "eslint --cache --fix",
+    "*.{ts,js}": "eslint --cache --fix",
     "*": "prettier --write --ignore-unknown"
   },
   "dependencies": {
