@@ -4,7 +4,8 @@ import { Schema, model } from "mongoose";
 const userSchema = new Schema<{
   username: string;
   email: string;
-  avatar: string;
+  password: string;
+  avatar?: string;
 }>(
   {
     username: {
@@ -16,6 +17,10 @@ const userSchema = new Schema<{
       type: String,
       required: true,
       index: { unique: true },
+    },
+    password: {
+      type: String,
+      required: true,
     },
     avatar: {
       type: String,
