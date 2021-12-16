@@ -6,6 +6,8 @@ import typeDefs from "./schema";
 import resolvers from "./resolvers";
 import { DB_HOST, PORT } from "./constants";
 
+export type Context = { models: typeof models };
+
 (async () => {
   const app = express();
 
@@ -14,7 +16,7 @@ import { DB_HOST, PORT } from "./constants";
   const server = new ApolloServer({
     typeDefs,
     resolvers,
-    context: () => ({ models }),
+    context: (): Context => ({ models }),
   });
   await server.start();
 
