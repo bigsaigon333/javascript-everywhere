@@ -6,11 +6,10 @@ import models from "./models";
 import typeDefs from "./schema";
 import resolvers from "./resolvers";
 import { DB_HOST, JWT_SECRET, PORT } from "./constants";
-import { throwError } from "./utils";
 import type { ExpressContext } from "apollo-server-express";
 import type { JwtPayload } from "jsonwebtoken";
 
-export type Context = { models: typeof models; user: JwtPayload };
+export type Context = { models: typeof models; user: JwtPayload | null };
 
 (async () => {
   const app = express();
@@ -21,10 +20,11 @@ export type Context = { models: typeof models; user: JwtPayload };
     typeDefs,
     resolvers,
     context: ({ req }: ExpressContext): Context => {
-      const token =
-        req.headers.authorization ?? throwError("Invalid token: undefined");
+      const token = req.headers.authorization;
 
-      const user = jwt.verify(token, JWT_SECRET) as JwtPayload;
+      const user =
+        token == null ? null : (jwt.verify(token, JWT_SECRET) as JwtPayload);
+
       console.log(user);
 
       return { models, user };
