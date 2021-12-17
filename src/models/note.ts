@@ -1,14 +1,18 @@
 import { Schema, model } from "mongoose";
 
 // 노트의 DB 스키마 정의
-const noteSchema = new Schema<{ content: string; author: string }>(
+const noteSchema = new Schema<{
+  content: string;
+  author: Schema.Types.ObjectId;
+}>(
   {
     content: {
       type: String,
       required: true,
     },
     author: {
-      type: String,
+      type: Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
   },

@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { AuthenticationError } from "apollo-server-express";
+import { AuthenticationError, ForbiddenError } from "apollo-server-express";
+import mongoose from "mongoose";
 import { JWT_SECRET } from "../constants";
 import type { Context } from "../index";
 
@@ -10,21 +11,72 @@ const Mutation = {
   newNote: async (
     _: never,
     { content }: { content: string },
-    { models }: Context
-  ) =>
-    models.Note.create({
+    { models, user }: Context
+  ) => {
+    if (user == null) {
+      throw new AuthenticationError(
+        "[newNote] You must be signed in to create a note!"
+      );
+    }
+
+    return models.Note.create({
       content,
-      author: "bigsaigon333",
-    }),
+      author: new mongoose.Types.ObjectId(user.id),
+    });
+  },
   updateNote: async (
     _: never,
     { id, content }: { id: string; content: string },
-    { models }: Context
-  ) => models.Note.findByIdAndUpdate(id, { $set: { content } }, { new: true }),
-  deleteNote: (_: never, { id }: { id: string }, { models }: Context) =>
-    models.Note.findByIdAndRemove(id)
+    { models, user }: Context
+  ) => {
+    if (user == null) {
+      throw new AuthenticationError(
+        "[newNote] You must be signed in to create a note!"
+      );
+    }
+
+    const note = await models.Note.findById(id);
+
+    // console.log(JSON.stringify(note, null, 2));
+
+    if (note == null || user.id !== String(note.author)) {
+      throw new ForbiddenError(
+        `[updateNote] user doesn't posess this note: ${user.id}`
+      );
+    }
+
+    return models.Note.findByIdAndUpdate(
+      id,
+      { $set: { content } },
+      { new: true }
+    );
+  },
+  deleteNote: async (
+    _: never,
+    { id }: { id: string },
+    { models, user }: Context
+  ) => {
+    if (user == null) {
+      throw new AuthenticationError(
+        "[newNote] You must be signed in to create a note!"
+      );
+    }
+
+    const note = await models.Note.findById(id);
+
+    console.log(JSON.stringify(note, null, 2));
+
+    if (note == null || user.id !== String(note.author)) {
+      throw new ForbiddenError(
+        `[deleteNote] user doesn't posess this note: ${user.id}`
+      );
+    }
+
+    return note
+      .remove()
       .then(() => true)
-      .catch(() => false),
+      .catch(() => false);
+  },
   signUp: async (
     _: never,
     {
