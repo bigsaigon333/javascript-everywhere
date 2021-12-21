@@ -68,10 +68,12 @@ const Mutation = {
       );
     }
 
-    return note
-      .remove()
-      .then(() => true)
-      .catch(() => false);
+    try {
+      await note.remove();
+      return true;
+    } catch (error) {
+      return false;
+    }
   },
   signUp: async (
     _: never,
