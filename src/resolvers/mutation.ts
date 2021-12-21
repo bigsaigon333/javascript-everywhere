@@ -37,8 +37,6 @@ const Mutation = {
 
     const note = await models.Note.findById(id);
 
-    // console.log(JSON.stringify(note, null, 2));
-
     if (note == null || user.id !== String(note.author)) {
       throw new ForbiddenError(
         `[updateNote] user doesn't posess this note: ${user.id}`
@@ -63,8 +61,6 @@ const Mutation = {
     }
 
     const note = await models.Note.findById(id);
-
-    console.log(JSON.stringify(note, null, 2));
 
     if (note == null || user.id !== String(note.author)) {
       throw new ForbiddenError(
