@@ -4,6 +4,7 @@ import { AuthenticationError, ForbiddenError } from "apollo-server-express";
 import mongoose from "mongoose";
 import { JWT_SECRET } from "../constants";
 import type { Context } from "../index";
+import { throwError } from "../utils";
 
 const SALT_ROUNDS = 10;
 
@@ -115,6 +116,41 @@ const Mutation = {
     }
 
     return jwt.sign({ id: user._id }, JWT_SECRET);
+  },
+  toggleFavorite: async (
+    _: never,
+    { id }: { id: string },
+    { models, user }: Context
+  ) => {
+    if (user == null) {
+      throw new AuthenticationError("[signIn] Error signing in");
+    }
+
+    const note =
+      (await models.Note.findById(id)) ??
+      throwError("[toggleFavorite] no note");
+
+    const hasCheck = Boolean(
+      note.favoritedBy.find((obj) => String(obj) === user.id)
+    );
+
+    return hasCheck
+      ? models.Note.findByIdAndUpdate(
+          id,
+          {
+            $pull: { favoritedBy: new mongoose.Types.ObjectId(user.id) },
+            $inc: { favoriteCount: -1 },
+          },
+          { new: true }
+        )
+      : models.Note.findByIdAndUpdate(
+          id,
+          {
+            $push: { favoritedBy: new mongoose.Types.ObjectId(user.id) },
+            $inc: { favoriteCount: 1 },
+          },
+          { new: true }
+        );
   },
 };
 

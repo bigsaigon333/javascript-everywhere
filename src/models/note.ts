@@ -4,6 +4,8 @@ import { Schema, model } from "mongoose";
 const noteSchema = new Schema<{
   content: string;
   author: Schema.Types.ObjectId;
+  favoriteCount: number;
+  favoritedBy: Schema.Types.ObjectId[];
 }>(
   {
     content: {
@@ -15,6 +17,16 @@ const noteSchema = new Schema<{
       ref: "User",
       required: true,
     },
+    favoriteCount: {
+      type: Number,
+      default: 0,
+    },
+    favoritedBy: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   { timestamps: true }
 );
